@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'add_note_screen.dart'; // Dodaj import do pliku z ekranem dodawania notatki
+import 'add_note_screen.dart';
 
 void main() {
   runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ToDo App',
+      home: HomePage(),
+    );
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -12,7 +22,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int? _draggedNoteIndex;
   List<String> notes = [];
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +47,14 @@ class _HomePageState extends State<HomePage> {
     await prefs.setStringList('notes', notes);
   }
 
+  // Funkcja do usuwania notatki
+  void _deleteNote(int index) {
+    setState(() {
+      notes.removeAt(index);
+      _saveNotes();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,9 +71,46 @@ class _HomePageState extends State<HomePage> {
           : ListView.builder(
         itemCount: notes.length,
         itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(notes[index]),
+          return Dismissible(
+            key: Key(notes[index]),
+            direction: DismissDirection.startToEnd, // Przeciąganie tylko w lewo
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.only(left: 16),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+            ),
+            onDismissed: (direction) {
+              _deleteNote(index);
+            },
+            child: GestureDetector(
+              // Obsługa przeciągania notatki
+              onHorizontalDragStart: (details) {
+                setState(() {
+                  _draggedNoteIndex = index;
+                });
+              },
+              onHorizontalDragUpdate: (details) {
+                // Zmieniamy kolor tła notatki na czerwony podczas przeciągania
+                setState(() {});
+              },
+              onHorizontalDragEnd: (details) {
+                if (_draggedNoteIndex != null) {
+                  _deleteNote(_draggedNoteIndex!);
+                  setState(() {
+                    _draggedNoteIndex = null;
+                  });
+                }
+              },
+              child: Card(
+                color: _draggedNoteIndex == index ? Colors.red : null,
+                child: ListTile(
+                  title: Text(notes[index]),
+                ),
+              ),
             ),
           );
         },
@@ -66,6 +123,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 
   // Funkcja do nawigowania na ekran dodawania notatki
   void _navigateToAddNoteScreen(BuildContext context) async {
