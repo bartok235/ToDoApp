@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'add_note_screen.dart';
+import 'edit_note_screen.dart';
+import 'note_model.dart';
 
 void main() {
   runApp(MyApp());
@@ -105,6 +107,9 @@ class _HomePageState extends State<HomePage> {
                   });
                 }
               },
+              onTap: () {
+                _navigateToEditNoteScreen(context, index);
+              },
               child: Card(
                 color: _draggedNoteIndex == index ? Colors.red : null,
                 child: ListTile(
@@ -124,6 +129,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Funkcja do nawigowania na ekran edycji notatki
+  void _navigateToEditNoteScreen(BuildContext context, int index) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditNoteScreen(note: Note(title: notes[index], content: '')),
+      ),
+    );
+
+    // Po powrocie z ekranu edycji notatki, sprawdzamy, czy zmodyfikowano notatkę
+    if (result != null && result is Note) {
+      setState(() {
+        // Aktualizujemy notatkę w liście notes
+        notes[index] = result.title;
+        // Zapisujemy notatki lokalnie
+        _saveNotes();
+      });
+    }
+  }
 
   // Funkcja do nawigowania na ekran dodawania notatki
   void _navigateToAddNoteScreen(BuildContext context) async {
