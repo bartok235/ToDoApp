@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'add_note_screen.dart';
 import 'edit_note_screen.dart';
 import 'note_model.dart';
+import 'database_helper.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,7 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int? _draggedNoteIndex;
-  List<String> notes = [];
+  List<Note> notes = []; // Teraz notes będzie listą obiektów klasy Note
 
   @override
   void initState() {
@@ -33,27 +33,49 @@ class _HomePageState extends State<HomePage> {
     _loadNotes(); // Wczytujemy notatki przy starcie aplikacji
   }
 
-  // Funkcja do wczytania notatek z pamięci urządzenia
+  // Funkcja do wczytania notatek z bazy danych
   void _loadNotes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    DatabaseHelper databaseHelper = DatabaseHelper.instance;
+    List<Note> loadedNotes = await databaseHelper.getAllNotes();
+
     setState(() {
       // Wczytujemy notatki do listy notes
-      notes = prefs.getStringList('notes') ?? [];
+      notes = loadedNotes;
     });
   }
 
-  // Funkcja do zapisywania notatki do pamięci urządzenia
-  void _saveNotes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Zapisujemy notatki przy użyciu SharedPreferences
-    await prefs.setStringList('notes', notes);
+// Funkcja do zapisywania notatki do bazy danych
+  void _saveNote(Note note) async {
+    DatabaseHelper databaseHelper = DatabaseHelper.instance;
+    await databaseHelper.insert(note);
+
+    // Odśwież listę notatek po dodaniu nowej notatki do bazy danych
+    _loadNotes();
   }
 
-  // Funkcja do usuwania notatki
-  void _deleteNote(int index) {
+
+  // Funkcja do aktualizacji notatki w bazie danych
+  void _updateNote(Note note) async {
+    DatabaseHelper databaseHelper = DatabaseHelper.instance;
+    await databaseHelper.update(note);
+
     setState(() {
+      // Aktualizujemy notatkę w liście notes
+      int index = notes.indexWhere((n) => n.id == note.id);
+      if (index != -1) {
+        notes[index] = note;
+      }
+    });
+  }
+
+  // Funkcja do usunięcia notatki z bazy danych
+  void _deleteNote(int index) async {
+    DatabaseHelper databaseHelper = DatabaseHelper.instance;
+    await databaseHelper.delete(notes[index].id!);
+
+    setState(() {
+      // Usuwamy notatkę z listy notes
       notes.removeAt(index);
-      _saveNotes();
     });
   }
 
@@ -74,7 +96,7 @@ class _HomePageState extends State<HomePage> {
         itemCount: notes.length,
         itemBuilder: (context, index) {
           return Dismissible(
-            key: Key(notes[index]),
+            key: Key(notes[index].id.toString()),
             direction: DismissDirection.startToEnd, // Przeciąganie tylko w lewo
             background: Container(
               color: Colors.red,
@@ -113,7 +135,7 @@ class _HomePageState extends State<HomePage> {
               child: Card(
                 color: _draggedNoteIndex == index ? Colors.red : null,
                 child: ListTile(
-                  title: Text(notes[index]),
+                  title: Text(notes[index].title),
                 ),
               ),
             ),
@@ -134,18 +156,13 @@ class _HomePageState extends State<HomePage> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditNoteScreen(note: Note(title: notes[index], content: '')),
+        builder: (context) => EditNoteScreen(note: notes[index]),
       ),
     );
 
     // Po powrocie z ekranu edycji notatki, sprawdzamy, czy zmodyfikowano notatkę
     if (result != null && result is Note) {
-      setState(() {
-        // Aktualizujemy notatkę w liście notes
-        notes[index] = result.title;
-        // Zapisujemy notatki lokalnie
-        _saveNotes();
-      });
+      _updateNote(result);
     }
   }
 
@@ -157,13 +174,13 @@ class _HomePageState extends State<HomePage> {
     );
 
     // Po powrocie z ekranu dodawania notatki, sprawdzamy, czy dodał notatkę
-    if (result != null && result is String) {
+    if (result != null && result is Note) {
+      _saveNote(result);
+      //Dodajemy notatkę do listy notes
       setState(() {
-        // Dodajemy notatkę do listy notes
         notes.add(result);
-        // Zapisujemy notatki lokalnie
-        _saveNotes();
       });
     }
+
   }
 }

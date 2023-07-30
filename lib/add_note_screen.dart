@@ -1,95 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ToDo App',
-      home: HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  List<String> notes = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadNotes(); // Wczytujemy notatki przy starcie aplikacji
-  }
-
-  // Funkcja do wczytania notatek z pamięci urządzenia
-  void _loadNotes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // Wczytujemy notatki do listy notes
-      notes = prefs.getStringList('notes') ?? [];
-    });
-  }
-
-  // Funkcja do zapisywania notatki do pamięci urządzenia
-  void _saveNotes() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('notes', notes);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('ToDo App'),
-      ),
-      body: notes.isEmpty
-          ? Center(
-        child: Text(
-          'Brak notatek',
-          style: TextStyle(fontSize: 20),
-        ),
-      )
-          : ListView.builder(
-        itemCount: notes.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              title: Text(notes[index]),
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _navigateToAddNoteScreen(context);
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  // Funkcja do nawigowania na ekran dodawania notatki
-  void _navigateToAddNoteScreen(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddNoteScreen()),
-    );
-
-    // Po powrocie z ekranu dodawania notatki, sprawdzamy, czy dodał notatkę
-    if (result != null && result is String) {
-      setState(() {
-        // Dodajemy notatkę do listy notes
-        notes.add(result);
-        // Zapisujemy notatki lokalnie
-        _saveNotes();
-      });
-    }
-  }
-}
+import 'package:todo_app/database_helper.dart';
+import 'note_model.dart';
 
 class AddNoteScreen extends StatefulWidget {
   @override
@@ -99,6 +10,35 @@ class AddNoteScreen extends StatefulWidget {
 class _AddNoteScreenState extends State<AddNoteScreen> {
   TextEditingController _titleController = TextEditingController();
   TextEditingController _contentController = TextEditingController();
+
+  // Funkcja do zapisywania notatki do bazy danych
+  Future<void> _saveNote() async {
+    String title = _titleController.text;
+    String content = _contentController.text;
+
+    // Jeśli tytuł nie został wpisany, użyj pierwszego słowa z treści jako tytuł
+    if (title.isEmpty && content.isNotEmpty) {
+      List<String> words = content.split(' ');
+      if (words.isNotEmpty) {
+        title = words[0];
+      }
+    } else if (title.isEmpty && content.isEmpty) {
+      // Jeśli użytkownik nic nie wpisał zarówno do tytułu, jak i treści,
+      // po prostu wracamy do poprzedniego ekranu
+      Navigator.pop(context);
+      return;
+    }
+
+    // Tworzymy nowy obiekt Note na podstawie wprowadzonych danych
+    Note newNote = Note(title: title, content: content);
+
+    // Korzystamy z DatabaseHelper, aby zapisać notatkę w bazie danych
+    DatabaseHelper databaseHelper = DatabaseHelper.instance;
+    await databaseHelper.insert(newNote);
+
+    // Zwracamy notatkę do poprzedniego ekranu
+    Navigator.pop(context, title);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,8 +70,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
-                _saveNote();
+              onPressed: () async {
+                await _saveNote(); // Wywołanie funkcji do zapisu notatki
               },
               child: Text('Zapisz'),
             ),
@@ -139,26 +79,5 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         ),
       ),
     );
-  }
-
-  void _saveNote() {
-    String title = _titleController.text;
-    String content = _contentController.text;
-
-    // Jeśli tytuł nie został wpisany, użyj pierwszego słowa z treści jako tytuł
-    if (title.isEmpty && content.isNotEmpty) {
-      List<String> words = content.split(' ');
-      if (words.isNotEmpty) {
-        title = words[0];
-      }
-    } else if (title.isEmpty && content.isEmpty) {
-      // Jeśli użytkownik nic nie wpisał zarówno do tytułu, jak i treści,
-      // po prostu wracamy do poprzedniego ekranu
-      Navigator.pop(context);
-      return;
-    }
-
-    // Zwracamy notatkę do poprzedniego ekranu
-    Navigator.pop(context, title);
   }
 }

@@ -42,6 +42,8 @@ dev_dependencies:
     sdk: flutter
   shared_preferences: ^2.0.9
   flutter_staggered_animations: ^1.0.0
+  sqflite: ^2.0.0 # Wersja pluginu sqflite
+  path: ^1.8.0 # Zależność potrzebna dla sqflite
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
