@@ -5,13 +5,15 @@ import 'note_model.dart';
 import 'database_helper.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'ToDo App',
       home: HomePage(),
     );
@@ -19,6 +21,8 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -83,10 +87,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ToDo App'),
+        title: const Text('ToDo App'),
       ),
       body: notes.isEmpty
-          ? Center(
+          ? const Center(
         child: Text(
           'Brak notatek',
           style: TextStyle(fontSize: 20),
@@ -101,8 +105,8 @@ class _HomePageState extends State<HomePage> {
             background: Container(
               color: Colors.red,
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(left: 16),
-              child: Icon(
+              padding: const EdgeInsets.only(left: 16),
+              child: const Icon(
                 Icons.delete,
                 color: Colors.white,
               ),
@@ -146,7 +150,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           _navigateToAddNoteScreen(context);
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -164,13 +168,14 @@ class _HomePageState extends State<HomePage> {
     if (result != null && result is Note) {
       _updateNote(result);
     }
+    _loadNotes();
   }
 
   // Funkcja do nawigowania na ekran dodawania notatki
   void _navigateToAddNoteScreen(BuildContext context) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddNoteScreen()),
+      MaterialPageRoute(builder: (context) => const AddNoteScreen()),
     );
 
     // Po powrocie z ekranu dodawania notatki, sprawdzamy, czy dodał notatkę
@@ -181,6 +186,7 @@ class _HomePageState extends State<HomePage> {
         notes.add(result);
       });
     }
+    _loadNotes();
 
   }
 }

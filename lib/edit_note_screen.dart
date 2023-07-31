@@ -5,15 +5,15 @@ import 'note_model.dart';
 class EditNoteScreen extends StatefulWidget {
   final Note note;
 
-  EditNoteScreen({required this.note});
+  const EditNoteScreen({super.key, required this.note});
 
   @override
   _EditNoteScreenState createState() => _EditNoteScreenState();
 }
 
 class _EditNoteScreenState extends State<EditNoteScreen> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
   @override
   void initState() {
@@ -37,7 +37,8 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
     await databaseHelper.update(widget.note);
 
     // Zwracamy notatkę do poprzedniego ekranu
-    Navigator.pop(context, widget.note);
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   // Funkcja do potwierdzenia usunięcia notatki
@@ -46,20 +47,20 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Usuń notatkę'),
-          content: Text('Czy na pewno chcesz usunąć tę notatkę?'),
+          title: const Text('Usuń notatkę'),
+          content: const Text('Czy na pewno chcesz usunąć tę notatkę?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Anuluj'),
+              child: const Text('Anuluj'),
             ),
             TextButton(
               onPressed: () async {
                 await _deleteNote(); // Wywołanie funkcji do usunięcia notatki
               },
-              child: Text('Tak'),
+              child: const Text('Tak'),
             ),
           ],
         );
@@ -75,7 +76,8 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
     await databaseHelper.delete(noteId!);
 
     // Wróć do ekranu głównego po usunięciu notatki
-    Navigator.pop(context);
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
 
@@ -83,10 +85,10 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edytuj notatkę'),
+        title: const Text('Edytuj notatkę'),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () {
               _confirmDelete();
             },
@@ -94,33 +96,33 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Tytuł',
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Expanded(
               child: TextField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Treść',
                 ),
                 maxLines: null,
                 expands: true,
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 await _updateNote(); // Wywołanie funkcji do aktualizacji notatki
               },
-              child: Text('Zapisz'),
+              child: const Text('Zapisz'),
             ),
           ],
         ),

@@ -4,12 +4,12 @@ import 'note_model.dart';
 
 class DatabaseHelper {
   // Nazwa tabeli
-  static final String tableNotes = 'notes';
+  static const String tableNotes = 'notes';
 
   // Nazwy kolumn w tabeli
-  static final String columnId = 'id';
-  static final String columnTitle = 'title';
-  static final String columnContent = 'content';
+  static const String columnId = 'id';
+  static const String columnTitle = 'title';
+  static const String columnContent = 'content';
 
   // Singleton pattern - instancja bazy danych
   static Database? _database;

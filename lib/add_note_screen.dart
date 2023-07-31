@@ -3,13 +3,15 @@ import 'package:todo_app/database_helper.dart';
 import 'note_model.dart';
 
 class AddNoteScreen extends StatefulWidget {
+  const AddNoteScreen({super.key});
+
   @override
   _AddNoteScreenState createState() => _AddNoteScreenState();
 }
 
 class _AddNoteScreenState extends State<AddNoteScreen> {
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _contentController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
 
   // Funkcja do zapisywania notatki do bazy danych
   Future<void> _saveNote() async {
@@ -37,43 +39,44 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     await databaseHelper.insert(newNote);
 
     // Zwracamy notatkę do poprzedniego ekranu
-    Navigator.pop(context, title);
+    if (!mounted) return;
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dodaj notatkę'),
+        title: const Text('Dodaj notatkę'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Tytuł',
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Expanded(
               child: TextField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Treść',
                 ),
                 maxLines: null,
                 expands: true,
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
                 await _saveNote(); // Wywołanie funkcji do zapisu notatki
               },
-              child: Text('Zapisz'),
+              child: const Text('Zapisz'),
             ),
           ],
         ),
