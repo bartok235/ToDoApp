@@ -59,6 +59,9 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
             TextButton(
               onPressed: () async {
                 await _deleteNote(); // Wywołanie funkcji do usunięcia notatki
+                // Wróć do ekranu głównego po usunięciu notatki
+                if (!mounted) return;
+                Navigator.of(context).pop();
               },
               child: const Text('Tak'),
             ),
@@ -75,7 +78,6 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
     DatabaseHelper databaseHelper = DatabaseHelper.instance;
     await databaseHelper.delete(noteId!);
 
-    // Wróć do ekranu głównego po usunięciu notatki
     if (!mounted) return;
     Navigator.of(context).pop();
   }
