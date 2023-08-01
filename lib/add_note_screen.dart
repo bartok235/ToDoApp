@@ -46,8 +46,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Dodaj notatkę'),
+        backgroundColor: Colors.black,
+        title: const Text('Dodaj notatkę', style: TextStyle(color: Colors.grey)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -55,17 +57,31 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
+              style: const TextStyle(color: Colors.white),
               controller: _titleController,
               decoration: const InputDecoration(
-                labelText: 'Tytuł',
+                labelText: 'Tytuł', labelStyle: TextStyle(color: Colors.white),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.yellow), // Kolor dolnej granicy po kliknięciu
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white), // Kolor dolnej granicy w stanie "spoczynku"
+                ),
               ),
             ),
             const SizedBox(height: 16.0),
             Expanded(
               child: TextField(
+                style: const TextStyle(color: Colors.white),
                 controller: _contentController,
                 decoration: const InputDecoration(
-                  labelText: 'Treść',
+                  labelText: 'Treść', labelStyle: TextStyle(color: Colors.white),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.yellow),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
                 ),
                 maxLines: null,
                 expands: true,
@@ -76,7 +92,10 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
               onPressed: () async {
                 await _saveNote(); // Wywołanie funkcji do zapisu notatki
               },
-              child: const Text('Zapisz'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow, // Kolor tła przycisku
+              ),
+              child: const Text('Zapisz', style: TextStyle(color: Colors.black54)),
             ),
           ],
         ),

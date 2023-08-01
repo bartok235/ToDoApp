@@ -86,10 +86,13 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Edytuj notatkę'),
+        backgroundColor: Colors.black,
+        title: const Text('Edytuj notatkę', style: TextStyle(color: Colors.grey)),
         actions: [
           IconButton(
+            color: Colors.grey,
             icon: const Icon(Icons.delete),
             onPressed: () {
               _confirmDelete();
@@ -104,16 +107,30 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
           children: [
             TextField(
               controller: _titleController,
+              style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                labelText: 'Tytuł',
+                labelText: 'Tytuł', labelStyle: TextStyle(color: Colors.white),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.yellow), // Kolor dolnej granicy po kliknięciu
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white), // Kolor dolnej granicy w stanie "spoczynku"
+                ),
               ),
             ),
             const SizedBox(height: 16.0),
             Expanded(
               child: TextField(
+                style: const TextStyle(color: Colors.white),
                 controller: _contentController,
                 decoration: const InputDecoration(
-                  labelText: 'Treść',
+                  labelText: 'Treść', labelStyle: TextStyle(color: Colors.white),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.yellow), // Kolor dolnej granicy po kliknięciu
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white), // Kolor dolnej granicy w stanie "spoczynku"
+                  ),
                 ),
                 maxLines: null,
                 expands: true,
@@ -124,7 +141,10 @@ class _EditNoteScreenState extends State<EditNoteScreen> {
               onPressed: () async {
                 await _updateNote(); // Wywołanie funkcji do aktualizacji notatki
               },
-              child: const Text('Zapisz'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow, // Kolor tła przycisku
+              ),
+              child: const Text('Zapisz', style: TextStyle(color: Colors.black54)),
             ),
           ],
         ),

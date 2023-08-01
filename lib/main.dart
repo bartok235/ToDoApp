@@ -86,14 +86,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('ToDo App'),
+        title: const Text('ToDo App', style: TextStyle(color: Colors.grey)),
+        backgroundColor: Colors.black,
       ),
-      body: notes.isEmpty
+      body:
+      notes.isEmpty
           ? const Center(
         child: Text(
           'Brak notatek',
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       )
           : ListView.builder(
@@ -108,7 +111,7 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.only(left: 16),
               child: const Icon(
                 Icons.delete,
-                color: Colors.white,
+                color: Colors.black12,
               ),
             ),
             onDismissed: (direction) {
@@ -137,9 +140,12 @@ class _HomePageState extends State<HomePage> {
                 _navigateToEditNoteScreen(context, index);
               },
               child: Card(
-                color: _draggedNoteIndex == index ? Colors.red : null,
+                color: _draggedNoteIndex == index ? Colors.red : Colors.grey, // Kolor tła notatki
                 child: ListTile(
-                  title: Text(notes[index].title),
+                  title: Text(
+                    notes[index].title,
+                    style: const TextStyle(color: Colors.white), // Kolor czcionki notatki
+                  ),
                 ),
               ),
             ),
@@ -147,10 +153,11 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.yellow,
         onPressed: () {
           _navigateToAddNoteScreen(context);
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.black54,),
       ),
     );
   }
